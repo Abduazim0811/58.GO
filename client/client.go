@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	content := "https://example.com"
+	content := "https://www.youtube.com/watch?v=wRjxtcSaFTc"
 	size := "256"
 
 	body := &bytes.Buffer{}
