@@ -8,40 +8,43 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
-func Qrcode(c *gin.Context){
+func generateQRCode(c *gin.Context) {
 	content := c.PostForm("content")
 	sizeStr := c.PostForm("size")
-	if content==""{
-		c.JSON(http.StatusBadRequest, gin.H{"error" :"contentni ichi bo'sh"})
+
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "content parametri kiritilmadi"})
+		return
 	}
 
-	if sizeStr == ""{
-		sizeStr="256"
+	if sizeStr == "" {
+		sizeStr = "256"
 	}
 
 	size, err := strconv.Atoi(sizeStr)
-	if err!=nil{
-		c.JSON(http.StatusBadRequest, gin.H{"error":"size butun son bolishi shart"})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "size parametri butun son bo'lishi kerak"})
 		return
 	}
 
 	qr, err := qrcode.New(content, qrcode.Medium)
-	if err!=nil{
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Qrcode yaratishda xatolik!!!!!!!!!"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "QR kod yaratishda xatolik: " + err.Error()})
 		return
 	}
 
 	png, err := qr.PNG(size)
-	if err!=nil{
-		c.JSON(http.StatusInternalServerError, gin.H{"error" : "Qrcode ni png ga o'tqazishda xatolik bor!!!!!!!!!!!!!!"})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "QR kodni PNG formatida yaratishda xatolik: " + err.Error()})
 		return
 	}
-	
+
 	c.Data(http.StatusOK, "image/png", png)
 }
 
-func main(){
+func main() {
 	r := gin.Default()
-	r.POST("/generete", Qrcode)
+	r.POST("/generate", generateQRCode)
+
 	r.Run(":1211")
 }
